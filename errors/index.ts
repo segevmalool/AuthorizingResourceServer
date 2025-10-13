@@ -1,8 +1,18 @@
 import type { Context, Middleware, Next } from 'koa';
 
-export class AuthorizationError extends Error {
+class AuthorizingResourceServerError extends Error {
+  public get responseCode(): number { return 500 };
+  public get responseBody(): string { return 'Unknown Error' };
+}
+
+export class AuthorizationError extends AuthorizingResourceServerError {
   public get responseCode(): number { return 401 };
   public get responseBody(): string { return 'Access Denied' };
+}
+
+export class BadRequestError extends AuthorizingResourceServerError {
+  public get responseCode(): number { return 400 };
+  public get responseBody(): string { return 'Bad Request' };
 }
 
 export function handleErrors(): Middleware {
@@ -10,7 +20,7 @@ export function handleErrors(): Middleware {
     try {
       await next();
     } catch (error: unknown) {
-      if (error instanceof AuthorizationError) {
+      if (error instanceof AuthorizingResourceServerError) {
         ctx.status = error.responseCode;
         ctx.response.body = error.responseBody;
       }

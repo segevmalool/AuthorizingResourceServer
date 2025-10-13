@@ -2,27 +2,8 @@ import type { RequestHandler } from './requestHandler.types.js';
 import { getRed } from './red.js';
 import { getWhite } from './white.js';
 import { getBlue } from './blue.js';
-import type { RouterContext } from '@koa/router';
-import type { Next } from 'koa';
-import { getProvidedSecretsHeader, parseProvidedSecretsHeader } from '../request_utils/index.js';
-
-
-export function listAuthorizations () {
-  return async (ctx: RouterContext, next: Next) => {
-    const canDo: RequestHandler[] = [];
-    let providedSecrets = parseProvidedSecretsHeader(getProvidedSecretsHeader(ctx));
-
-    for (const providedSecret of providedSecrets) {
-      const handler_p = handlers.find((handler => handler.secret === providedSecret));
-      if (handler_p) {
-        canDo.push(handler_p);
-      }
-    }
-
-    ctx.response.body = canDo.map(handler => handler.path);
-    await next();
-  }
-}
+import { getAuthorizedEndpoints } from './authorization.js';
+import Router from '@koa/router';
 
 export const handlers: RequestHandler[] = [
   {
@@ -43,10 +24,32 @@ export const handlers: RequestHandler[] = [
     method: 'get',
     secret: 'calmwaters',
   },
+];
+
+// The authoriation endpoint is public, so out of scope for
+handlers.push(
   {
     path: '/authorizations',
-    handler: listAuthorizations(),
+    handler: getAuthorizedEndpoints(handlers),
     method: 'get',
     secret: undefined,
   },
-];
+)
+
+export const resourcesRouter = new Router();
+
+// Setup for resource handlers.
+/**
+ * By the time the resources get hit, the request has been authorized.
+ * See {@link checkAuthorization} for authorization decisioning.
+ * Also see  {@link setupApp} to see integration into the koa handler hierarchy.
+ */
+for (const requestHandler of handlers) {
+  switch (requestHandler.method) {
+    case 'get':
+      resourcesRouter.get(requestHandler.path, requestHandler.handler);
+      break;
+    default:
+      console.log('unsupported method detected')
+  }
+}
