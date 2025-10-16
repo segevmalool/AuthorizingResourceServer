@@ -2,12 +2,14 @@ import Koa from 'koa';
 import { resourcesRouter } from './resources/index.js';
 import { handleErrors } from './errors/index.js';
 import { authorizeRequest } from './authorization/index.js';
+import { authenticateClient } from './authentication/index.js';
 
 function setupApp() {
   const app = new Koa();
 
 // General request handling
   app.use(handleErrors());
+  app.use(authenticateClient());
   app.use(authorizeRequest());
 
 // Resource Routers
