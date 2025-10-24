@@ -1,6 +1,6 @@
 import type { Context, Middleware, Next } from 'koa';
 
-class AuthorizingResourceServerError extends Error {
+export class AuthorizingResourceServerError extends Error {
   public get responseCode(): number { return 500 };
   public get responseBody(): string { return this.message || 'Unknown Error' };
 }

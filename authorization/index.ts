@@ -1,20 +1,42 @@
 import type { Middleware, Context, Next } from 'koa';
-import { handlers } from '../resources/index.js';
-import { AuthorizationError, BadRequestError } from '../errors/index.js';
-import type { RequestHandler } from '../resources/requestHandler.types.js';
-import { getProvidedSecretsHeader, parseProvidedSecretsHeader } from '../request_utils/index.js';
 
-// Throws an error if Authorization fails.
-export async function checkAuthorization(ctx: Context, handler: RequestHandler) {
-  // Indicates "public" endpoint.
-  if (!handler.secret) {
-    return;
+export class AuthorizationGrant {
+  constructor(private clientId: string, private resourcePath: string) {}
+
+  public checkAccess(clientId: string, resourcePath: string): AuthorizationGrant | null {
+    const accessGranted = this.clientId === clientId && this.resourcePath === resourcePath;
+
+    if (accessGranted) return this;
+
+    return null;
+  }
+}
+
+export class AuthorizationGrantStorage {
+  public grantedAuthorizations: AuthorizationGrant[] = [];
+
+  public constructor(grantedAuthorizations: AuthorizationGrant[]) {
+    this.grantedAuthorizations = grantedAuthorizations;
   }
 
-  const providedSecrets = parseProvidedSecretsHeader(getProvidedSecretsHeader(ctx));
+  public findAuthorizationGrant(clientId: string,  resourcePath: string): AuthorizationGrant | null {
+    const result = this.grantedAuthorizations.find(
+      (authz: AuthorizationGrant) => authz.checkAccess(clientId, resourcePath)
+    );
 
-  if (!handler.secret || !(providedSecrets.includes(handler.secret))) {
-    throw new AuthorizationError('Access Denied');
+    return result ?? null;
+  }
+}
+
+export class AuthorizationGrantStorageSingleton {
+  private instance: AuthorizationGrantStorage | null = null;
+
+  public getInstance(): AuthorizationGrantStorage {
+    if (!this.instance) {
+      this.instance = new AuthorizationGrantStorage([]);
+    }
+
+    return this.instance;
   }
 }
 
@@ -24,20 +46,7 @@ export async function checkAuthorization(ctx: Context, handler: RequestHandler) 
  */
 export function authorizeRequest(): Middleware {
   return async (ctx: Context, next: Next) => {
-    const requestedPath = ctx.path;
 
-    // Find handler for this path.
-    const handler = handlers.find((handler) => {
-      if (handler.path === requestedPath) {
-        return handler;
-      }
-    });
-
-    if (!handler) {
-      throw new BadRequestError();
-    }
-
-    await checkAuthorization(ctx, handler);
 
     // Proceed with the request.
     await next();

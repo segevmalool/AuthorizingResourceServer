@@ -3,12 +3,14 @@ import { resourcesRouter } from './resources/index.js';
 import { handleErrors } from './errors/index.js';
 import { authorizeRequest } from './authorization/index.js';
 import { authenticateClient } from './authentication/index.js';
+import { withRequestLocalStorage } from './localStorage/index.js';
 
 function setupApp() {
   const app = new Koa();
 
 // General request handling
   app.use(handleErrors());
+  app.use(withRequestLocalStorage());
   app.use(authenticateClient());
   app.use(authorizeRequest());
 

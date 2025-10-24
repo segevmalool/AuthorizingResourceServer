@@ -1,7 +1,8 @@
 import type { Context, Next } from 'koa';
-import { AuthenticationError } from '../errors/index.js';
+import { AuthenticationError, AuthorizingResourceServerError } from '../errors/index.js';
+import { RequestLocalStorage } from '../localStorage/index.js';
 
-class Client {
+export class Client {
   public constructor(private clientId: string, private clientSecret: string) {}
 
   public authenticate(clientId: string, clientSecret: string): Client | null {
@@ -69,6 +70,14 @@ export function authenticateClient() {
     if (!client) {
       throw new AuthenticationError('Invalid client');
     }
+
+    const requestLocalStorage = RequestLocalStorage.getStore();
+
+    if (!requestLocalStorage) {
+      throw new AuthorizingResourceServerError('Local storage error');
+    }
+
+    requestLocalStorage.client = client;
 
     await next();
   }
