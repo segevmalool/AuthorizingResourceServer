@@ -5,7 +5,7 @@ import { authorizeRequest } from './authorization/index.js';
 import { authenticateClient } from './authentication/index.js';
 import { withRequestLocalStorage } from './localStorage/index.js';
 
-function setupApp() {
+function setupApp(): Koa {
   const app = new Koa();
 
 // General request handling

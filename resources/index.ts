@@ -10,19 +10,19 @@ export const handlers: RequestHandler[] = [
     path: '/red',
     handler: getRed(),
     method: 'get',
-    secret: 'BLOOOOOD',
+    isPublic: false,
   },
   {
     path: '/white',
     handler: getWhite(),
     method: 'get',
-    secret: 'PURIFication',
+    isPublic: false,
   },
   {
     path: '/blue',
     handler: getBlue(),
     method: 'get',
-    secret: 'calmwaters',
+    isPublic: false,
   },
 ];
 
@@ -32,7 +32,7 @@ handlers.push(
     path: '/authorizations',
     handler: getAuthorizedEndpoints(handlers),
     method: 'get',
-    secret: undefined,
+    isPublic: true,
   },
 )
 

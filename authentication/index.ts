@@ -14,6 +14,10 @@ export class Client {
 
     return this;
   }
+
+  public getClientId() {
+    return this.clientId;
+  }
 }
 
 export class ClientStorage {
@@ -77,7 +81,7 @@ export function authenticateClient() {
       throw new AuthorizingResourceServerError('Local storage error');
     }
 
-    requestLocalStorage.client = client;
+    requestLocalStorage.setClient(client);
 
     await next();
   }
