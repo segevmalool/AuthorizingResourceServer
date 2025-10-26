@@ -4,7 +4,7 @@ import {RequestLocalStorage} from '../localStorage/index.js';
 import {Client} from './client.js';
 import {ClientStorageSingleton} from './clientStorage.js';
 
-export function authenticateClient() {
+export function withClientAuthentication() {
   return async (ctx: Context, next: Next)=> {
     const authorizationHeader = ctx.headers.authorization;
 

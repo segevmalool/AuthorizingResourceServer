@@ -8,7 +8,7 @@ import {AuthorizationGrantStorageSingleton} from './authorizationGrantStorage.js
  * 1. Match the requested path with defined resources. If not found, throw bad request.
  * 2. In any other case, if the request is authorized, then proceed.
  */
-export function authorizeRequest(): Middleware {
+export function withRequestAuthorization(): Middleware {
   return async (ctx: Context, next: Next) => {
     const requestLocalStorage = RequestLocalStorage.getStore();
 

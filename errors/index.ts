@@ -21,7 +21,7 @@ export class BadRequestError extends AuthorizingResourceServerError {
   public get responseBody(): string { return this.message || 'Bad Request'; };
 }
 
-export function handleErrors(): Middleware {
+export function withErrorHandling(): Middleware {
   return async (ctx: Context, next: Next)=> {
     try {
       await next();
