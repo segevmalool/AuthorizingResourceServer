@@ -1,49 +1,8 @@
-import type { Context, Next } from 'koa';
-import { AuthenticationError, AuthorizingResourceServerError } from '../errors/index.js';
-import { RequestLocalStorage } from '../localStorage/index.js';
-
-export class Client {
-  public constructor(private clientId: string, private clientSecret: string) {}
-
-  public authenticate(clientId: string, clientSecret: string): Client | null {
-    const authenticated = this.clientId === clientId && this.clientSecret === clientSecret;
-
-    if (!authenticated) {
-      return null;
-    }
-
-    return this;
-  }
-
-  public getClientId() {
-    return this.clientId;
-  }
-}
-
-export class ClientStorage {
-  private clients: Client[] = [];
-
-  public constructor(clientList: Client[]) {
-    this.clients = clientList;
-  }
-
-  public findClient(clientId: string, clientSecret: string): Client | null {
-    return this.clients.find((client: Client) => client.authenticate(clientId, clientSecret)) ?? null;
-  }
-}
-
-export class ClientStorageSingleton {
-  private static instance: ClientStorage | null = null;
-
-  public static getInstance() {
-    if (!this.instance) {
-      this.instance = new ClientStorage([
-        new Client('user', 'pass'),
-      ]);
-    }
-    return this.instance;
-  }
-}
+import type {Context, Next} from 'koa';
+import {AuthenticationError, AuthorizingResourceServerError} from '../errors/index.js';
+import {RequestLocalStorage} from '../localStorage/index.js';
+import {Client} from './client.js';
+import {ClientStorageSingleton} from './clientStorage.js';
 
 export function authenticateClient() {
   return async (ctx: Context, next: Next)=> {
@@ -84,5 +43,5 @@ export function authenticateClient() {
     requestLocalStorage.setClient(client);
 
     await next();
-  }
+  };
 }

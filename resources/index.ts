@@ -1,8 +1,8 @@
-import type { RequestHandler } from './requestHandler.types.js';
-import { getRed } from './red.js';
-import { getWhite } from './white.js';
-import { getBlue } from './blue.js';
-import { getAuthorizedEndpoints } from './authorization.js';
+import type {RequestHandler} from './requestHandler.types.js';
+import {getRed} from './red.js';
+import {getWhite} from './white.js';
+import {getBlue} from './blue.js';
+import {getAuthorizedEndpoints} from './authorization.js';
 import Router from '@koa/router';
 
 export const handlers: RequestHandler[] = [
@@ -34,7 +34,7 @@ handlers.push(
     method: 'get',
     isPublic: true,
   },
-)
+);
 
 export const resourcesRouter = new Router();
 
@@ -50,6 +50,6 @@ for (const requestHandler of handlers) {
       resourcesRouter.get(requestHandler.path, requestHandler.handler);
       break;
     default:
-      console.log('unsupported method detected')
+      console.log('unsupported method detected');
   }
 }

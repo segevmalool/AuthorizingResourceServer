@@ -1,9 +1,9 @@
-import { type RouterContext } from '@koa/router';
-import type { Next } from 'koa';
-import type { RequestHandler } from './requestHandler.types.js';
-import { AuthorizationGrantStorageSingleton } from '../authorization/index.js';
-import { RequestLocalStorage } from '../localStorage/index.js';
-import { AuthorizingResourceServerError } from '../errors/index.js';
+import {type RouterContext} from '@koa/router';
+import type {Next} from 'koa';
+import type {RequestHandler} from './requestHandler.types.js';
+import {RequestLocalStorage} from '../localStorage/index.js';
+import {AuthorizingResourceServerError} from '../errors/index.js';
+import {AuthorizationGrantStorageSingleton} from '../authorization/authorizationGrantStorage.js';
 
 export function getAuthorizedEndpoints (handlers: RequestHandler[]) {
   return async (ctx: RouterContext, next: Next) => {
@@ -22,7 +22,7 @@ export function getAuthorizedEndpoints (handlers: RequestHandler[]) {
     }
 
     for (const grant of await AuthorizationGrantStorageSingleton.getInstance().findAuthorizationGrantsWhere(clientId)) {
-      const requestHandler = handlers.find((handler) => handler.path === grant.getResourcePath())
+      const requestHandler = handlers.find((handler) => handler.path === grant.getResourcePath());
 
       if (!requestHandler) {
         // No request handler for resource with authz granted. (or authz granted for non existent resource)
@@ -34,5 +34,5 @@ export function getAuthorizedEndpoints (handlers: RequestHandler[]) {
 
     ctx.response.body = canDo.map(handler => handler.path);
     await next();
-  }
+  };
 }
